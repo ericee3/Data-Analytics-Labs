@@ -2,7 +2,7 @@ library(readr)
 library(EnvStats)
 
 # set working directory (relative path)
-setwd("~/Courses/Data Analytics/Fall25/labs/lab 1/")
+setwd("/Users/elizabethrice/Desktop/Data Analytics Labs/Lab1")
 
 # read data
 epi.data <- read_csv("epi_results_2024_pop_gdp.csv")
@@ -172,3 +172,5 @@ wilcox.test(x,y)
 
 var.test(x,y)
 t.test(x,y)
+
+
