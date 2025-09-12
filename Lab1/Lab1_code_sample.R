@@ -172,5 +172,3 @@ wilcox.test(x,y)
 
 var.test(x,y)
 t.test(x,y)
-
-
