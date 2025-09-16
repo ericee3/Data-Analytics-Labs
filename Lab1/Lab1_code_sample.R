@@ -26,13 +26,13 @@ attach(epi.data)
 # print values in variable
 EPI.new
 
-########################
 
+########################
 
 
 ### Explore Variable ###
 
-EPI <- epi.data$EPI.new
+PAR <- epi.data$EPI.new
 
 # find NAs in variable - outputs vector of logical values, true if NA, false otherwise
 NAs <- is.na(EPI)
@@ -172,3 +172,67 @@ wilcox.test(x,y)
 
 var.test(x,y)
 t.test(x,y)
+
+### Explore ECO ###
+
+ECO <- epi.data$ECO.new
+
+# basic summary
+summary(ECO)
+
+# check for NAs
+ECO_NAs <- is.na(ECO)
+ECO[which(ECO_NAs)]
+
+# subset without NAs
+ECO.noNA <- ECO[!ECO_NAs]
+
+# stats on non-NA values
+summary(ECO.noNA)
+
+# histogram with density
+hist(ECO, breaks=20, main="Histogram of ECO.new", col="lightblue")
+lines(density(ECO, na.rm=TRUE), col="red", lwd=2)
+rug(ECO)
+
+# boxplot
+boxplot(ECO, main="Boxplot of ECO.new")
+
+# ECDF
+plot(ecdf(ECO), do.points=FALSE, verticals=TRUE, main="ECDF of ECO.new")
+
+# Q-Q plot vs normal
+qqnorm(ECO, main="Normal Q-Q Plot of ECO.new"); qqline(ECO, col="red")
+
+
+### Explore BDH ###
+
+BDH <- epi.data$BDH.new
+
+# basic summary
+summary(BDH)
+
+# check for NAs
+BDH_NAs <- is.na(BDH)
+BDH[which(BDH_NAs)]
+
+# subset without NAs
+BDH.noNA <- BDH[!BDH_NAs]
+
+# stats on non-NA values
+summary(BDH.noNA)
+
+# histogram with density
+hist(BDH, breaks=20, main="Histogram of BDH.new", col="lightgreen")
+lines(density(BDH, na.rm=TRUE), col="blue", lwd=2)
+rug(BDH)
+
+# boxplot
+boxplot(BDH, main="Boxplot of BDH.new")
+
+# ECDF
+plot(ecdf(BDH), do.points=FALSE, verticals=TRUE, main="ECDF of BDH.new")
+
+# Q-Q plot vs normal
+qqnorm(BDH, main="Normal Q-Q Plot of BDH.new"); qqline(BDH, col="red")
+
