@@ -66,14 +66,14 @@ sum(is.infinite((nydataset$BATH)))             # Check for Inf in BATH
 
 
 # Fit multiple linear regression models
-lmod_11 <- lm(log10(PRICE) ~ log10(PROPERTYSQFT) + BEDS + BATH, data = nydataset)
-lmod_22 <- lm(log10(PRICE) ~ log10(PROPERTYSQFT) + BEDS, data = nydataset)
-lmod_33 <- lm(log10(PRICE) ~ BEDS + BATH, data = nydataset)
+mod1 <- lm(log10(PRICE) ~ log10(PROPERTYSQFT) + BEDS + BATH, data = nydataset)
+mod2 <- lm(log10(PRICE) ~ log10(PROPERTYSQFT) + BEDS, data = nydataset)
+mod3 <- lm(log10(PRICE) ~ BEDS + BATH, data = nydataset)
 
 # Display model summaries
-summary(lmod_11)
-summary(lmod_22)
-summary(lmod_33)
+summary(mod1)
+summary(mod2)
+summary(mod3)
 
 
 # Define function to plot regression line and residuals for a chosen variable
@@ -103,8 +103,8 @@ plot_model <- function(model, data, var_name, model_name) {
 }
 
 # Generate plots for models using PROPERTYSQFT as the main predictor
-plot_model(lmod_11, nydataset, "PROPERTYSQFT", "lmod_11")
-plot_model(lmod_22, nydataset, "PROPERTYSQFT", "lmod_22")
+plot_model(mod1, nydataset, "PROPERTYSQFT", "mod1")
+plot_model(mod2, nydataset, "PROPERTYSQFT", "mod2")
 
 
 # Repeat plotting for BEDS as the predictor
@@ -113,17 +113,17 @@ plot_model(lmod_22, nydataset, "PROPERTYSQFT", "lmod_22")
 ggplot(nydataset, aes(x = BEDS, y = log10(PRICE))) +
   geom_point(alpha = 0.5, color = "pink") +  
   stat_smooth(method = "lm", col = "grey", se = FALSE) +  
-  labs(title = "Regression: BEDS vs log10(PRICE) - Model lmod_33",
+  labs(title = "Regression: BEDS vs log10(PRICE) - Model mod3",
        x = "Number of Beds", y = "log10(PRICE)") +
   theme_minimal()
 
-# Residuals vs Fitted plot for lmod_33
-residuals_data <- data.frame(Fitted = fitted(lmod_33), Residuals = resid(lmod_33))
+# Residuals vs Fitted plot for mod3
+residuals_data <- data.frame(Fitted = fitted(mod3), Residuals = resid(mod3))
 
 ggplot(residuals_data, aes(x = Fitted, y = Residuals)) +
   geom_point(alpha = 0.5, color = "purple") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
-  labs(title = "Residuals vs Fitted - Model lmod_33",
+  labs(title = "Residuals vs Fitted - Model mod3",
        x = "Fitted Values", y = "Residuals") +
   theme_minimal()
 
