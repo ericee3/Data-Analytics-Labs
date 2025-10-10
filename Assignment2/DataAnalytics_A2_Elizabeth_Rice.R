@@ -1,15 +1,26 @@
-library("ggplot2")
-library("readr")
-library(readr)
-library(class)      # For kNN
+###############################################
+# Assignment 2: Data Analytics (Fall 2025)
+# Author: Elizabeth Rice
+# Course: Data Analytics
+# Description: Exploratory Data Analysis, Linear Models, and kNN Classification
+###############################################
+
+# --- Load required libraries ---
+library("ggplot2")    # For plotting and visualization
+library("readr")      # For reading CSV files
+library(class)        # For kNN classification
+library(caret)        # For confusion matrix and model evaluation
+
+# --- Load dataset ---
 epi_results_2024_pop_gdp <- read_csv("/Users/elizabethrice/Desktop/Data Analytics Labs/Assignment2/epi_results_2024_pop_gdp_v2.csv")
 View(epi_results_2024_pop_gdp)
 
+# Rename dataset for simplicity
 epi.data <- epi_results_2024_pop_gdp
 attach(epi.data)
 View(epi.data)
 
-# Check for NAN
+# --- Check for missing values in key variables ---
 sum(is.na(epi.data$population))
 sum(is.na(epi.data$gdp))
 sum(is.na(epi.data$EPI.new))
@@ -19,255 +30,229 @@ sum(is.na(epi.data$SPI.new))
 sum(is.na(epi.data$BER.new))
 sum(is.na(epi.data$RLI.new))
 
-
-# Remove rows where population or gdp is NA
-
+# --- Remove rows containing NA values for main predictors ---
 epi.data <- epi.data[!is.na(epi.data$population) & 
-                           !is.na(epi.data$gdp) & 
-                           !is.na(epi.data$SPI.new) & 
-                           !is.na(epi.data$BER.new) & 
-                           !is.na(epi.data$RLI.new), ]
+                       !is.na(epi.data$gdp) & 
+                       !is.na(epi.data$SPI.new) & 
+                       !is.na(epi.data$BER.new) & 
+                       !is.na(epi.data$RLI.new), ]
 
-# Variable Distribution 
+###############################################
+# PART 1: VARIABLE DISTRIBUTION ANALYSIS
+###############################################
 
-# Display unique values from the 'region' column
+# --- Display unique regions to select from ---
 unique_regions <- unique(epi.data$region)
-
-# Print unique regions
 print(unique_regions)
 
-
-# Select two different regions 
+# --- Select two different regions (for example) ---
 region1 <- unique_regions[4]  
 region2 <- unique_regions[5]  
 
-# Create subsets
+# --- Create subsets for each region ---
 subset_region1 <- subset(epi.data, region == region1)
 subset_region2 <- subset(epi.data, region == region2)
 
-# Print first few rows of each subset
+# --- Display first few rows to confirm subsets ---
 print(head(subset_region1))
 print(head(subset_region2))
 
-# Check the shape of the first subset
-dim(subset_region1)  # Returns c(number of rows, number of columns)
-nrow(subset_region1) # Returns number of rows
-ncol(subset_region1) # Returns number of columns
-
-# Check the shape of the second subset
+# --- Check shape (number of rows and columns) ---
+dim(subset_region1)
 dim(subset_region2)
-nrow(subset_region2)
-ncol(subset_region2)
 
-# Define the variable
+# --- Define the variable of interest ---
 variable <- "EPI.new"
 
-# Plot histograms with density lines for both regions
+# --- Plot histograms with density lines for each region ---
 p1 <- ggplot(subset_region1, aes(x = EPI.new)) +
-  geom_histogram(aes(y = ..density..), bins = 30, fill = "blue", alpha = 0.5) +
-  geom_density(color = "red", size = 1) +
+  geom_histogram(aes(y = ..density..), bins = 30, fill = "orange", alpha = 0.5) +
+  geom_density(color = "purple", size = 1) +
   ggtitle(paste("Histogram with Density -", region1)) +
   theme_minimal()
 
 p2 <- ggplot(subset_region2, aes(x = EPI.new)) +
-  geom_histogram(aes(y = ..density..), bins = 30, fill = "green", alpha = 0.5) +
-  geom_density(color = "red", size = 1) +
+  geom_histogram(aes(y = ..density..), bins = 30, fill = "pink", alpha = 0.5) +
+  geom_density(color = "purple", size = 1) +
   ggtitle(paste("Histogram with Density -", region2)) +
   theme_minimal()
 
-# Display plots
+# --- Display both histograms ---
 print(p1)
 print(p2)
 
-# Q-Q Plots
-
-# Q-Q plot function
+# --- Create Q-Q plots for normality check in each region ---
 qq_plot <- function(data, region_name, variable) {
   ggplot(data, aes(sample = get(variable))) +
-    stat_qq(distribution = qnorm) +  # Compare against a normal distribution
+    stat_qq(distribution = qnorm) +
     stat_qq_line(distribution = qnorm, color = "red") +
     ggtitle(paste("Q-Q Plot -", region_name)) +
     theme_minimal()
 }
 
-# Generate Q-Q plots for both regions
 p1 <- qq_plot(subset_region1, region1, variable)
 p2 <- qq_plot(subset_region2, region2, variable)
 
-# Display plots
+# --- Display Q-Q plots (region vs normal) ---
 print(p1)
 print(p2)
 
-# linear models
+# --- Additional: Q-Q plot comparing two regions directly ---
+qqplot(subset_region1$EPI.new, subset_region2$EPI.new,
+       xlab = paste(region1, "Quantiles"),
+       ylab = paste(region2, "Quantiles"),
+       main = paste("QQ Plot:", region1, "vs", region2))
+abline(0, 1, col = "red")
 
-#Visualization 
+###############################################
+# PART 2: LINEAR MODELS
+###############################################
 
-ggplot(epi.data, aes(x = log10(gdp), y = (ECO.new))) + 
-  geom_point()
+# --- Visualize relationships between predictors and response variables ---
+ggplot(epi.data, aes(x = log10(gdp), y = ECO.new)) + 
+  geom_point() +
+  ggtitle("Scatterplot: ECO.new vs log10(GDP)")
 
 ggplot(epi.data, aes(x = log10(population), y = log10(ECO.new))) +
-  geom_point()
+  geom_point() +
+  ggtitle("Scatterplot: log10(ECO.new) vs log10(Population)")
 
+# --- Fit linear models for EPI.new with different predictors ---
+lmod_11 <- lm(EPI.new ~ log10(population) + log10(gdp), data = epi.data)
+lmod_22 <- lm(EPI.new ~ log10(gdp), data = epi.data)
+lmod_33 <- lm(EPI.new ~ log10(population), data = epi.data)
 
-## fit linear model
-
-lmod_11 <- lm((EPI.new) ~ log10(population) + log10(gdp) , data = epi.data)
-
-lmod_22 <- lm((EPI.new)~ log10(gdp), data = epi.data)
-
-lmod_33 <- lm((EPI.new)~log10(population) , data = epi.data)
-
-## print model output
+# --- Display model summaries ---
 summary(lmod_11)
 summary(lmod_22)
 summary(lmod_33)
 
-lmod_1 <- lm((ECO.new) ~ log10(population) + log10(gdp) , data = epi.data)
+# --- Fit linear models for ECO.new as response variable ---
+lmod_1 <- lm(ECO.new ~ log10(population) + log10(gdp), data = epi.data)
+lmod_2 <- lm(ECO.new ~ log10(gdp), data = epi.data)
+lmod_3 <- lm(ECO.new ~ log10(population), data = epi.data)
 
-lmod_2 <- lm((ECO.new)~ log10(gdp), data = epi.data)
-
-lmod_3 <- lm((ECO.new)~log10(gdp) , data = epi.data)
-## print model output
+# --- Display model summaries ---
 summary(lmod_1)
 summary(lmod_2)
 summary(lmod_3)
 
-# Fitting models with subsets of sub regions 
-
+# --- Fit model using a subset region (for regional comparison) ---
 attach(subset_region1)
-View(subset_region1)
-
-
-lmod_s1 <- lm((EPI.new)~log10(population) + log10(gdp), data = subset_region1)
+lmod_s1 <- lm(EPI.new ~ log10(population) + log10(gdp), data = subset_region1)
 summary(lmod_s1)
 
-#Creating new columns for log transformation of the predictors 
-
+# --- Create new columns for log-transformed predictors ---
 epi.data$log10_population <- log10(epi.data$population)
 epi.data$log10_gdp <- log10(epi.data$gdp)
 
-
-# Plot log10_gdp vs EPI.new with regression line
-
+# --- Plot regression lines for models (GDP and EPI/ECO) ---
 p1 <- ggplot(epi.data, aes(x = log10_gdp, y = EPI.new)) +
-  geom_point(alpha = 0.6, color = "blue") +
-  geom_smooth(method = "lm", color = "red", se = TRUE) +
+  geom_point(alpha = 0.6, color = "purple") +
+  geom_smooth(method = "lm", color = "orange", se = TRUE) +
   ggtitle("EPI.new vs log10(GDP)") +
   theme_minimal()
 
-# Plot log10_gdp vs ECO.new with regression line
 p2 <- ggplot(epi.data, aes(x = log10_gdp, y = ECO.new)) +
-  geom_point(alpha = 0.6, color = "green") +
-  geom_smooth(method = "lm", color = "red", se = TRUE) +
+  geom_point(alpha = 0.6, color = "violet") +
+  geom_smooth(method = "lm", color = "orange", se = TRUE) +
   ggtitle("ECO.new vs log10(GDP)") +
   theme_minimal()
 
-# Plot residuals for EPI.new model
+# --- Residual plots for model diagnostics ---
 residuals_epi <- data.frame(Fitted = fitted(lmod_22), Residuals = resid(lmod_22))
 p3 <- ggplot(residuals_epi, aes(x = Fitted, y = Residuals)) +
-  geom_point(alpha = 0.6, color = "blue") +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  geom_point(alpha = 0.6, color = "purple") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "orange") +
   ggtitle("Residuals Plot for EPI.new Model") +
   theme_minimal()
 
-# Plot residuals for ECO.new model
 residuals_eco <- data.frame(Fitted = fitted(lmod_2), Residuals = resid(lmod_2))
 p4 <- ggplot(residuals_eco, aes(x = Fitted, y = Residuals)) +
-  geom_point(alpha = 0.6, color = "green") +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  geom_point(alpha = 0.6, color = "violet") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "orange") +
   ggtitle("Residuals Plot for ECO.new Model") +
   theme_minimal()
 
-# Plot residuals for Sub Region model
 residuals_sub <- data.frame(Fitted = fitted(lmod_s1), Residuals = resid(lmod_s1))
 p5 <- ggplot(residuals_sub, aes(x = Fitted, y = Residuals)) +
-  geom_point(alpha = 0.6, color = "blue") +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
-  ggtitle("Residuals Plot for Sub-Saharan Africa Model") +
+  geom_point(alpha = 0.6, color = "purple") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "orange") +
+  ggtitle("Residuals Plot for Sub-Region Model") +
   theme_minimal()
 
-# Plot log10_gdp vs ECO.new with regression line for sub region 
+# --- Regional model regression plot ---
 p6 <- ggplot(subset_region1, aes(x = log10(gdp), y = EPI.new)) +
-  geom_point(alpha = 0.6, color = "green") +
-  geom_smooth(method = "lm", color = "red", se = TRUE) +
-  ggtitle("EPI.new vs log10(GDP) for Sub-Saharan Africa ") +
+  geom_point(alpha = 0.6, color = "violet") +
+  geom_smooth(method = "lm", color = "orange", se = TRUE) +
+  ggtitle(paste("EPI.new vs log10(GDP) for", region1)) +
   theme_minimal()
 
-# Display plots
-print(p1)
-print(p2)
-print(p3)
-print(p4)
-print(p5)
-print(p6)
+# --- Display all plots ---
+print(p1); print(p2); print(p3); print(p4); print(p5); print(p6)
 
-# Classification (kNN) 
+###############################################
+# PART 3: CLASSIFICATION (kNN)
+###############################################
 
-# Define the two regions
+# --- Define the two regions for classification ---
 selected_regions <- c("Sub-Saharan Africa", "Latin America & Caribbean")
 
-# Create the subset using base R 
-subset_data <- epi.data[epi.data$region %in% selected_regions, c("region", "SPI.new", "BER.new", "RLI.new")]
+# --- Subset with relevant predictor variables ---
+subset_data <- epi.data[epi.data$region %in% selected_regions, 
+                        c("region", "SPI.new", "BER.new", "RLI.new")]
 
-# View the first few rows of the subset
-head(subset_data)
-
-# Convert region to factor (for classification)
+# --- Convert region to factor for classification ---
 subset_data$region <- as.factor(subset_data$region)
 
-## plot subset_data colored by class
+# --- Visualize data distribution by class ---
 ggplot(subset_data, aes(x = BER.new, y = RLI.new, colour = region)) +
-  geom_point()
+  geom_point() +
+  ggtitle("Scatterplot of BER.new vs RLI.new by Region")
 
-# Normalize the numerical features
-#normalize <- function(x) { (x - min(x)) / (max(x) - min(x)) }
-#subset_data[, 2:4] <- lapply(subset_data[, 2:4], normalize)
+# --- (Optional) Normalize predictors for better kNN performance ---
+# normalize <- function(x) { (x - min(x)) / (max(x) - min(x)) }
+# subset_data[, 2:4] <- lapply(subset_data[, 2:4], normalize)
 
-# Split data into training (80%) and testing (20%)
-set.seed(123)  # For reproducibility
+# --- Split data into training (80%) and testing (20%) sets ---
+set.seed(123)
 train_index <- sample(1:nrow(subset_data), 0.8 * nrow(subset_data))
 train_data <- subset_data[train_index, ]
 test_data <- subset_data[-train_index, ]
 
-# Extract features and labels
-train_x <- train_data[, 2:4]  # Predictor variables
-train_y <- train_data$region  # Response variable
+# --- Extract features (X) and labels (Y) ---
+train_x <- train_data[, 2:4]
+train_y <- train_data$region
 test_x <- test_data[, 2:4]
 test_y <- test_data$region
 
-
+# --- Estimate k using simple rule of thumb ---
 n <- 76
-# simple estimate of k
 k_v = round(sqrt(n))
+k_v
 
-k_v <- k_v
-
-# Train and evaluate kNN model for different k values
-k_values <- c(3, 9, 12)  # Try different k values
+# --- Train and evaluate kNN model for several k values ---
+k_values <- c(3, 9, 12)
 for (k in k_values) {
   knn_pred <- knn(train_x, test_x, train_y, k = k)
   
   # Compute confusion matrix
   cm <- confusionMatrix(knn_pred, test_y)
   
-  
-  # Accuracy calculation
+  # Calculate accuracy
   accuracy <- sum(diag(cm$table)) / sum(cm$table)
   
   print(paste("k =", k, "Accuracy =", round(accuracy, 3)))
   print(cm)
 }
 
-##############################################################################
-
-## train model & predict in one step ('knn' function from 'class' library)
+# --- Final model with k = 9 ---
 knn.predicted <- knn(train_x, test_x, train_y, k = 9)
 
-# create contingency table/ confusion matrix 
-contingency.table <- table(knn.predicted, test_y, dnn=list('predicted','actual'))
-
+# --- Create confusion matrix (contingency table) ---
+contingency.table <- table(knn.predicted, test_y, dnn = list('Predicted','Actual'))
 contingency.table
 
-# calculate classification accuracy
-sum(diag(contingency.table))/length(test_y)
+# --- Calculate overall classification accuracy ---
+sum(diag(contingency.table)) / length(test_y)
 
