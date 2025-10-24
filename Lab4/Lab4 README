@@ -1,0 +1,24 @@
+Model 1:
+          actual
+predicted  1  2  3
+        1 19  1  0
+        2  0 16  0
+        3  0  0 18
+accuracy
+[1] 0.9814815
+
+
+Model 2:
+          actual
+predicted  1  2  3
+        1 19  1  0
+        2  0 16  0
+        3  0  0 18
+accuracy
+[1] 0.9814815
+
+
+  Class Precision    Recall F1_Score
+1     1      0.95 1.0000000 0.974359
+2     2      1.00 0.9411765 0.969697
+3     3      1.00 1.0000000 1.000000
