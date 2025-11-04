@@ -1,5 +1,5 @@
 ###############################################
-#   Lab 4: Classification with SVM and kNN
+#   Lab 5: Classification with SVM and kNN
 ###############################################
 
 # Load required libraries
