@@ -1,0 +1,136 @@
+> ## Plot dataset
+> ggplot(dataset, aes(x = log10(PROPERTYSQFT), y = log10(PRICE))) +
++   geom_point()
+> ggplot(dataset, aes(x = PROPERTYSQFT, y = PRICE)) +
++   geom_point()
+> ## Linear Regression Model
+> lin.mod0 <- lm(log10(PRICE) ~ log10(PROPERTYSQFT), dataset)
+> summary(lin.mod0)
+
+Call:
+lm(formula = log10(PRICE) ~ log10(PROPERTYSQFT), data = dataset)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-2.66188 -0.20813 -0.02737  0.19770  2.60205 
+
+Coefficients:
+                    Estimate Std. Error t value Pr(>|t|)    
+(Intercept)          2.66695    0.06625   40.26   <2e-16 ***
+log10(PROPERTYSQFT)  1.01573    0.02031   50.00   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.3627 on 4799 degrees of freedom
+Multiple R-squared:  0.3425,	Adjusted R-squared:  0.3424 
+F-statistic:  2500 on 1 and 4799 DF,  p-value: < 2.2e-16
+
+> ggplot(dataset, aes(x = log10(PROPERTYSQFT), y = log10(PRICE))) +
++   geom_point() +
++   stat_smooth(method = "lm", col="blue")
+`geom_smooth()` using formula = 'y ~ x'
+> ## Cleaning
+> dataset.sub0 <- dataset[-which(dataset$PROPERTYSQFT==2184.207862),]
+> lin.mod1 <- lm(log10(PRICE) ~ log10(PROPERTYSQFT), dataset.sub0)
+> summary(lin.mod1)
+
+Call:
+lm(formula = log10(PRICE) ~ log10(PROPERTYSQFT), data = dataset.sub0)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-0.9666 -0.1999 -0.0506  0.1920  2.4363 
+
+Coefficients:
+                    Estimate Std. Error t value Pr(>|t|)    
+(Intercept)          2.39126    0.05443   43.93   <2e-16 ***
+log10(PROPERTYSQFT)  1.12609    0.01690   66.63   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.2926 on 3178 degrees of freedom
+Multiple R-squared:  0.5828,	Adjusted R-squared:  0.5827 
+F-statistic:  4440 on 1 and 3178 DF,  p-value: < 2.2e-16
+
+
+> ggplot(dataset.sub0, aes(x = log10(PROPERTYSQFT), y = log10(PRICE))) +
++   geom_point() +
++   stat_smooth(method = "lm", col="blue")
+`geom_smooth()` using formula = 'y ~ x'
+> ## SVM - linear
+> svm.mod0 <- svm(log10(PRICE) ~ log10(PROPERTYSQFT), dataset.sub0, kernel="linear")
+> summary(svm.mod0)
+
+Call:
+svm(formula = log10(PRICE) ~ log10(PROPERTYSQFT), data = dataset.sub0, kernel = "linear")
+
+
+Parameters:
+   SVM-Type:  eps-regression 
+ SVM-Kernel:  linear 
+       cost:  1 
+      gamma:  1 
+    epsilon:  0.1 
+
+
+Number of Support Vectors:  2780
+
+
+> svm.pred <- predict(svm.mod0, dataset.sub0)
+> ggplot(dataset.sub0, aes(x = log10(PROPERTYSQFT), y = log10(PRICE))) +
++   geom_point() +
++   geom_line(aes(x=log10(PROPERTYSQFT), y=svm.pred), col="green")
+> ## SVM - radial
+> svm.mod1 <- svm(log10(PRICE) ~ log10(PROPERTYSQFT), dataset.sub0, kernel="radial")
+> summary(svm.mod1)
+
+Call:
+svm(formula = log10(PRICE) ~ log10(PROPERTYSQFT), data = dataset.sub0, kernel = "radial")
+
+
+Parameters:
+   SVM-Type:  eps-regression 
+ SVM-Kernel:  radial 
+       cost:  1 
+      gamma:  1 
+    epsilon:  0.1 
+
+
+Number of Support Vectors:  2762
+
+
+> svm.pred <- predict(svm.mod1, dataset.sub0)
+> ggplot(dataset.sub0, aes(x = log10(PROPERTYSQFT), y = log10(PRICE))) +
++   geom_point() +
++   geom_line(aes(x=log10(PROPERTYSQFT), y=svm.pred), col="red")
+> ## SVM - radial - optimized
+> tuned.svm <- tune.svm(log10(PRICE) ~ log10(PROPERTYSQFT), data=dataset.sub0, kernel="radial", gamma = 10^seq(-3,2,1), cost = 10^seq(-3,2,1), tune.control=tune.control(cross = 5))
+> tuned.svm
+
+Parameter tuning of ‘svm’:
+
+- sampling method: 10-fold cross validation 
+
+- best parameters:
+ gamma cost
+   0.1   10
+
+- best performance: 0.08568869
+
+
+> svm.mod1 <- svm(log10(PRICE) ~ log10(PROPERTYSQFT), dataset.sub0, kernel="radial", gamma=0.1, cost=100)
+> summary(svm.mod1)
+
+Call:
+svm(formula = log10(PRICE) ~ log10(PROPERTYSQFT), data = dataset.sub0, kernel = "radial", gamma = 0.1, cost = 100)
+
+
+Parameters:
+   SVM-Type:  eps-regression 
+ SVM-Kernel:  radial 
+       cost:  100 
+      gamma:  0.1 
+    epsilon:  0.1 
+
+
+Number of Support Vectors:  2759
