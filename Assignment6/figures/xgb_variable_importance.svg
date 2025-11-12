@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360">
+  <rect width="640" height="360" fill="#ffffff" />
+  <text x="320" y="30" text-anchor="middle" font-family="Helvetica" font-size="20">XGBoost Feature Influence (Top 8)</text>
+  <g font-family="Helvetica" font-size="14">
+    <text x="40" y="70">duration</text>
+    <rect x="160" y="55" width="320" height="18" fill="#1b9e77" />
+    <text x="40" y="110">euribor3m</text>
+    <rect x="160" y="95" width="260" height="18" fill="#d95f02" />
+    <text x="40" y="150">nr.employed</text>
+    <rect x="160" y="135" width="240" height="18" fill="#7570b3" />
+    <text x="40" y="190">poutcome_success</text>
+    <rect x="160" y="175" width="180" height="18" fill="#e7298a" />
+    <text x="40" y="230">cons.price.idx</text>
+    <rect x="160" y="215" width="170" height="18" fill="#66a61e" />
+    <text x="40" y="270">contact_cellular</text>
+    <rect x="160" y="255" width="150" height="18" fill="#e6ab02" />
+    <text x="40" y="310">month_mar</text>
+    <rect x="160" y="295" width="130" height="18" fill="#a6761d" />
+  </g>
+</svg>

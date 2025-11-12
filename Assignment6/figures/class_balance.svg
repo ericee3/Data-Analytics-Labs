@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="320" viewBox="0 0 480 320">
+  <rect width="480" height="320" fill="#ffffff" />
+  <text x="240" y="30" text-anchor="middle" font-family="Helvetica" font-size="20">Subscription Outcome Distribution</text>
+  <line x1="80" y1="270" x2="420" y2="270" stroke="#000" stroke-width="2" />
+  <line x1="80" y1="70" x2="80" y2="270" stroke="#000" stroke-width="2" />
+  <rect x="120" y="100" width="100" height="170" fill="#66c2a5" />
+  <rect x="260" y="220" width="100" height="50" fill="#fc8d62" />
+  <text x="170" y="295" text-anchor="middle" font-family="Helvetica" font-size="16">no</text>
+  <text x="310" y="295" text-anchor="middle" font-family="Helvetica" font-size="16">yes</text>
+  <text x="70" y="110" text-anchor="end" font-family="Helvetica" font-size="14">36.5k</text>
+  <text x="70" y="230" text-anchor="end" font-family="Helvetica" font-size="14">9.3k</text>
+</svg>
