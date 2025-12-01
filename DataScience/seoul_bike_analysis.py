@@ -14,8 +14,8 @@ import statistics
 from pathlib import Path
 from typing import Dict, Iterable, List, Sequence, Tuple
 
-DATA_PATH = Path("Assignment6/data/SeoulBikeData.csv")
-FIGURES_DIR = Path("Assignment6/figures")
+DATA_PATH = Path("DataScience/data/SeoulBikeData.csv")
+FIGURES_DIR = Path("DataScience/figures")
 
 
 def synthetic_row(day: int, hour: int) -> Dict[str, float | str]:
@@ -403,3 +403,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

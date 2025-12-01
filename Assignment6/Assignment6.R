@@ -310,3 +310,4 @@ saveRDS(km_best, file.path(results_dir, "kmeans_model.rds"))
 writeLines(capture.output(sessionInfo()), file.path(results_dir, "session_info.txt"))
 
 message("Analysis complete. Outputs saved to Assignment6/results and Assignment6/figures.")
+
