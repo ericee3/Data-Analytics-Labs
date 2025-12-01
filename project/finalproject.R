@@ -5,7 +5,7 @@ library(tidyverse)
 library(lubridate)
 
 # >>>>> CHANGE THIS IF YOUR FOLDER MOVES <<<<<
-data_dir <- "/Users/elizabethrice/Desktop/Data Analytics Labs/DataScience/project/data"
+data_dir <- "/Users/elizabethrice/Desktop/Data Analytics Labs/project/data"
 
 ###############################################
 # 1. Load CSVs from your data folder
